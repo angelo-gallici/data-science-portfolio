@@ -118,5 +118,203 @@ print("\n")
 
 print("Géneros de titulares (titular_genero):")
 print(df_clean['titular_genero'].unique())
+print("\n")
+
+import pandas as pd
+import numpy as np
+
+# Supongamos que tu DataFrame se llama df_clean
+# y la columna con las marcas es 'automotor_marca_descripcion'
+
+def corregir_marcas(df, columna):
+    """
+    Corrige errores de tipeo y unifica marcas en una columna de DataFrame.
+
+    Args:
+        df (pd.DataFrame): El DataFrame con la columna de marcas.
+        columna (str): El nombre de la columna con las marcas.
+
+    Returns:
+        pd.Series: La columna con las marcas corregidas.
+    """
+
+    marcas = df[columna].str.upper().str.strip()  # Convertir a mayúsculas y eliminar espacios
+
+    # Diccionario de correcciones
+    correcciones = {
+        'VOLKSWGEN': 'VOLKSWAGEN',
+        'VOLSKWAGEN': 'VOLKSWAGEN',
+        'VOLKSWAGN': 'VOLKSWAGEN',
+        'VOLKSWAGEN (136)': 'VOLKSWAGEN',
+        'VOLKSWAGEN/MARCOPOLO': 'VOLKSWAGEN',
+        'EGA098VOLKSWAGEN': 'VOLKSWAGEN',
+        'VOLKSWGAEN': 'VOLKSWAGEN',
+        'VOLKWAGEN': 'VOLKSWAGEN',
+        'VOKKSWAGEN': 'VOLKSWAGEN',
+        'VOKSWAGEN': 'VOLKSWAGEN',
+        'VOLSWAGEN': 'VOLKSWAGEN',
+        'VOLKSWAGENVOLKSWAGEN': 'VOLKSWAGEN',
+        'VOLKSAWGEN': 'VOLKSWAGEN',
+        'VOLKSWWAGEN': 'VOLKSWAGEN',
+        'VLOKSWAGEN': 'VOLKSWAGEN',
+        'VOLKSWAGEN G': 'VOLKSWAGEN',
+        'VOLKSWAGUEN': 'VOLKSWAGEN',
+        'VOLKSWAAGEN': 'VOLKSWAGEN',
+        'VOLKSWAFGEN': 'VOLKSWAGEN',
+        'VOLKSAGEN': 'VOLKSWAGEN',
+        'VOLKDWAGEN': 'VOLKSWAGEN',
+        '-VOLKSWAGEN': 'VOLKSWAGEN',
+        'WOLKSWAGEN': 'VOLKSWAGEN',
+        '-136-VOLKSWAGEN': 'VOLKSWAGEN',
+        '-136- VOLKSWAGEN': 'VOLKSWAGEN',
+        'MERCEDES-BENZ': 'MERCEDES BENZ',
+        'M. BENZ': 'MERCEDES BENZ',
+        'MERCEDEZ BENZ': 'MERCEDES BENZ',
+        'M.BENZ': 'MERCEDES BENZ',
+        'MERCERDES BENZ': 'MERCEDES BENZ',
+        'MERCEDES BENZ/COMIL': 'MERCEDES BENZ',
+        '-092-MERCEDES BENZ': 'MERCEDES BENZ',
+        'REANULT': 'RENAULT',
+        'RANAULT': 'RENAULT',
+        'RENUALT': 'RENAULT',
+        'R E N A U L T': 'RENAULT',
+        'RENAULT \(112\)': 'RENAULT',
+        '-112- RENAULT': 'RENAULT',
+        '-112-RENAULT': 'RENAULT',
+        'RENAUL': 'RENAULT',
+        'RENAULT R': 'RENAULT',
+        'RENAULT \(033\)': 'RENAULT',
+        'REANUT': 'RENAULT',
+        'CHEROLET': 'CHEVROLET',
+        'CHEVROELT': 'CHEVROLET',
+        'CHEVRVOLET': 'CHEVROLET',
+        'CHEVROLET \(024\)': 'CHEVROLET',
+        '\.CHEVROLET': 'CHEVROLET',
+        '-024-CHEVROLET': 'CHEVROLET',
+        '-024- CHEVROLET': 'CHEVROLET',
+        'FIAR': 'FIAT',
+        'FIAT.': 'FIAT',
+        'FIAT \(044\)': 'FIAT',
+        '044 FIAT': 'FIAT',
+        '-044-FIAT': 'FIAT',
+        'FIAT3': 'FIAT',
+        '-044- FIAT': 'FIAT',
+        'FIAT AUTO ARGENTINA S.A': 'FIAT',
+        'FIAT IVECO': 'FIAT',
+        '\.PEUGEOT': 'PEUGEOT',
+        'PEOGEOT': 'PEUGEOT',
+        'PEUIGEOT': 'PEUGEOT',
+        'PEUGET': 'PEUGEOT',
+        'PEUGROT': 'PEUGEOT',
+        'PUEGEOT': 'PEUGEOT',
+        'OEUGEOT': 'PEUGEOT',
+        '3PEUGEOT': 'PEUGEOT',
+        'PEUGEOT \(039\)': 'PEUGEOT',
+        '-104-PEUGEOT': 'PEUGEOT',
+        'PEUGEOT 306 XRD': 'PEUGEOT',
+        'ALFA ROMERO': 'ALFA ROMEO',
+        'ALFA ROEMO': 'ALFA ROMEO',
+        'SSANYONG': 'SSANGYONG',
+        'SANGYONG': 'SSANGYONG',
+        'CITROËN': 'CITROEN',
+        'CITRÖEN': 'CITROEN',
+        'FORS': 'FORD',
+        'FORD \(047\)': 'FORD',
+        '047-FORD': 'FORD',
+        '-047- FORD': 'FORD',
+        'FORD FALCON': 'FORD',
+        'FORD F-100 XLT': 'FORD',
+        '19 - FORD': 'FORD',
+        'B M W': 'BMW',
+        'B.M.W.': 'BMW',
+        'G.M.C.': 'GMC',
+        'VW': 'VOLKSWAGEN',
+        'M. BENZ': 'MERCEDES BENZ',
+        'CHEVETTE': 'CHEVROLET',
+        'SUZUKI SWIFT SEDAN NLX': 'SUZUKI',
+        'GMC CHEVETTE': 'GMC',
+        '-130- TOYOTA': 'TOYOTA',
+        'SUZUKI CARRY': 'SUZUKI',
+        'DEUTZ - AGRALE': 'DEUTZ',
+        'GMC CHEVROLET': 'GMC',
+        'PICK UP': 'NO DEFINIDO',
+        '-058-HYUNDAI': 'HYUNDAI',
+        'GENERAL MOTORS': 'GMC',
+        '-102-NISSAN': 'NISSAN',
+        'CIADEA SA': 'CIADEA',
+        'JEEP ESTANCIERA': 'JEEP',
+        'VW': 'VOLKSWAGEN',
+        'SUZUKI SWIFT SEDAN GLX': 'SUZUKI',
+        'NISSAN DIESEL': 'NISSAN',
+        'GMC  CHEVETTE': 'GMC',
+        'RASTROJERO DIESEL': 'RASTROJERO',
+        'NO POSEE': 'NO DEFINIDO',
+        'KIA MOTORS': 'KIA',
+        'NAVATUC NT': 'NAVATUC',
+        'SUZUKI SWIFT GTI': 'SUZUKI',
+        'RENAULT (112)': 'RENAULT',
+        'BELGRANO MET.BEL.SRL': 'BELGRANO',
+        '.TOYOTA': 'TOYOTA',
+        'A.F.F.': 'AFF',
+        'FIAT (044)': 'FIAT',
+        '127 SUZUKI': 'SUZUKI',
+        'SUZUKI SWIFT SEDAN NL': 'SUZUKI',
+        'NO CONSTA': 'NO DEFINIDO',
+        'GMC 500': 'GMC',
+        'FORD (047)': 'FORD',
+        'SAAB SCANIA': 'SCANIA',
+        'TOYOTA (030)': 'TOYOTA',
+        '-072-KIA': 'KIA',
+        '69 - BONANO': 'BONANO',
+        'CHEVROET': 'CHEVROLET',
+        'FORD ARGENTINA S. C. A.': 'FORD',
+        '-047-FORD': 'FORD',
+        'NISSAN PATHFINDER': 'NISSAN',
+        'DODGE/CHRYSLER': 'CHRYSLER-DODGE',
+        'CHRYSLER DODGE': 'CHRYSLER-DODGE',
+        'RENAULT                      R': 'RENAULT',
+        'PEUGEOT (039)': 'PEUGEOT',
+        'DEUTZ AGRALE': 'DEUTZ',
+        'CARROCERIAS APEZ': 'APEZ',
+        'SUZUKI VITARA': 'SUZUKI',
+        '-032-DAIHATSU': 'DAIHATSU',
+        'CHEVROLET (024)': 'CHEVROLET',
+        'SIN MARCA REGISTRADA': 'NO DEFINIDO',
+        '.CHEVROLET': 'CHEVROLET',
+        'SIN MARCA': 'NO DEFINIDO',
+        '37 - RENAULT': 'RENAULT',
+        'SIN IDENTIFICACION': 'NO DEFINIDO',
+        'SIN ESPECIFICACION': 'NO DEFINIDO',
+        'VOLKSWAGEN         G': 'VOLKSWAGEN',
+        'CHERVROLET': 'CHEVROLET',
+        'GENERAL MOTORS ARGENTINA S. R.  L.': 'GMC',
+        'CHEVETTE': 'GMC',
+        'CHEVROLET LUMINA APV': 'CHEVROLET',
+        'RENAUTL': 'RENAULT',
+        'MERCEDES BENZ.': 'MERCEDES BENZ',
+        'GMC CHEVETTE (GENERAL MOTORS CORPORATION)': 'GMC',
+        'G.M.C. CHEVETTE': 'GMC',
+        'GMC (GENERAL MOTORS CORPORATION)': 'GMC',
+        'G.MOTORS': 'GMC',
+        'RENAULT (033)': 'RENAULT',
+        'VOLKSWGAGEN': 'VOLKSWAGEN',
+        'MARCA   INVALIDA': 'NO DEFINIDO',
+        '*': 'NO DEFINIDO',
+        'DUNA W.E. 1.6': 'FIAT',
+        'VW (VOLKSWAGEN)': 'VOLKSWAGEN',
+
+    }
+
+    # Aplicar correcciones
+    marcas_corregidas = marcas.replace(correcciones)
+
+    return marcas_corregidas
+
+# Aplicar la función y actualizar la columna
+df_clean['automotor_marca_descripcion'] = corregir_marcas(df_clean, 'automotor_marca_descripcion')
+
+# Imprimir las marcas corregidas
+print("Marcas de auto corregidas (automotor_marca_descripcion):")
+print(df_clean['automotor_marca_descripcion'].unique())
 
 
