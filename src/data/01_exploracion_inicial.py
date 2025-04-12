@@ -40,4 +40,19 @@ df = df.drop(columns=columnas_a_eliminar)
 
 #print(df.head())
 
+# Nulos por columna
+#print(df.isnull().sum())
+
+# Eliminamos filas con nulos
+df_clean = df.dropna()
+
+# Verificamos nuevamente los nulos
+print(df_clean.isnull().sum())
+print(f"Nuevo tamaño del dataset: {df_clean.shape}")
+
+# Guardamos el dataset limpio
+df_clean.to_csv(r'F:\Portfolio Data Science\Robos vehiculos\data-science-portfolio\data\processed\dnrpa-robos-limpio.csv', index=False)
+
+
+
 
