@@ -1,6 +1,8 @@
 # Importar librerías
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
+import unicodedata
 
 # Leer el dataset
 df = pd.read_csv(r'F:\Portfolio Data Science\Robos vehiculos\data-science-portfolio\data\raw\Dataset Historico\dnrpa-robos-recuperos-autos-historico.csv', sep=',', 
@@ -112,16 +114,15 @@ print("Marcas de auto (automotor_marca_descripcion):")
 print(df_clean['automotor_marca_descripcion'].unique())
 print("\n")
 
-print("Tipos de vehículo (automotor_tipo_descripcion):")
-print(df_clean['automotor_tipo_descripcion'].unique())
+# Mostrar todos los valores únicos completos de automotor_tipo_descripcion
+print(df_clean['automotor_tipo_descripcion'].value_counts().index.tolist())
 print("\n")
 
 print("Géneros de titulares (titular_genero):")
 print(df_clean['titular_genero'].unique())
 print("\n")
 
-import pandas as pd
-import numpy as np
+print("CORRECCIONES")
 
 # Supongamos que tu DataFrame se llama df_clean
 # y la columna con las marcas es 'automotor_marca_descripcion'
@@ -272,10 +273,18 @@ def corregir_marcas(df, columna):
         'NISSAN PATHFINDER': 'NISSAN',
         'DODGE/CHRYSLER': 'CHRYSLER-DODGE',
         'CHRYSLER DODGE': 'CHRYSLER-DODGE',
+        'DODGE': 'CHRYSLER-DODGE',
         'RENAULT                      R': 'RENAULT',
         'PEUGEOT (039)': 'PEUGEOT',
         'DEUTZ AGRALE': 'DEUTZ',
+        'DEUTZ-AGRALE': 'DEUTZ',
+        'AGRALE': 'DEUTZ',
+        'RAM': 'CHRYSLER-DODGE',
+        '.PEUGEOT': 'PEUGEOT',
         'CARROCERIAS APEZ': 'APEZ',
+        'RAMBLER IKA': 'RAMBLER-IKA',
+        '19': 'NO DEFINIDO',
+        'MERDECES BENZ': 'MERCEDES BENZ',
         'SUZUKI VITARA': 'SUZUKI',
         '-032-DAIHATSU': 'DAIHATSU',
         'CHEVROLET (024)': 'CHEVROLET',
@@ -313,8 +322,130 @@ def corregir_marcas(df, columna):
 # Aplicar la función y actualizar la columna
 df_clean['automotor_marca_descripcion'] = corregir_marcas(df_clean, 'automotor_marca_descripcion')
 
+def agrupar_tipo_vehiculo(df, columna):
+    """
+    Corrige errores de tipeo y unifica marcas en una columna de DataFrame.
+
+    Args:
+        df (pd.DataFrame): El DataFrame con la columna de marcas.
+        columna (str): El nombre de la columna con las marcas.
+
+    Returns:
+        pd.Series: La columna con las marcas corregidas.
+    """
+
+    marcas = df[columna].str.upper().str.strip()  # Convertir a mayúsculas y eliminar espacios
+
+    # Diccionario de correcciones
+    correcciones = {
+        '': 'SEDAN',
+        '': 'RURAL',
+        '': 'PICK-UP',
+        '': 'FURGON',
+        '': 'COUPE',
+        '': 'TODOTERRENO',
+        '': 'CHASIS CON CABINA',
+        '': 'TRACTOR',
+        '': 'MINIBUS',
+        '': 'UTILITARIO',
+        '': 'OMNIBUS',
+        '': 'LIMUSINA',
+        '': 'CAMION',
+        '': 'CASA RODANTE',
+        '': 'ACOPLADO',
+        '': 'GRUA',
+        '': 'NO DEFINIDO',
+        'SEDAN 5 PTAS': 'SEDAN',
+        'SEDAN 5 PUERTAS': 'SEDAN',
+        'SEDAN 4 PTAS': 'SEDAN',
+        'SEDAN 4 PUERTAS': 'SEDAN',
+        'SEDAN 3 PTAS': 'SEDAN',
+        'SEDAN 3 PUERTAS': 'SEDAN',
+        'RURAL 5 PTAS': 'RURAL',
+        'RURAL 5 PUERTAS': 'RURAL',
+        'TODO TERRENO': 'TODOTERRENO',
+        'FURGONETA': 'FURGON',
+        'PICK UP': 'PICK-UP',
+        'SEDAN 2 PTAS': 'SEDAN',
+        'PICK-UP CABINA DOBLE': 'PICK-UP',
+        'FAMILIAR': 'RURAL',
+        'CHASIS C/CABINA': 'CHASIS CON CABINA',
+        'SEDAN 2 PUERTAS': 'SEDAN',
+        'FURGON VIDRIADO C/ASIENTOS': 'FURGON',
+        'SIN ESPECIFICACION': 'NO DEFINIDO',
+        'TRACTOR DE CARRETERA': 'TRACTOR',
+        'FURGON 600': 'FURGON',
+        'SEMIRREMOLQUE': 'ACOPLADO',
+        'FURGON VIDRIADO': 'FURGON',
+        'FURGON VIDRIADO CON ASIENTOS': 'FURGON',
+        'BERLINA 5 PTAS': 'SEDAN',
+        'BERLINA 5 PUERTAS': 'SEDAN',
+        'FURGON VIDRIADO C/ ASIENTOS': 'FURGON',
+        #HASTA TRANSP. DE PASAJEROS
+
+
+    }
+
+    # Aplicar correcciones
+    tipo_vehiculo_corregidos = marcas.replace(correcciones)
+
+    return tipo_vehiculo_corregidos
+
+# Aplicar la función y actualizar la columna
+df_clean['automotor_tipo_descripcion'] = agrupar_tipo_vehiculo(df_clean, 'automotor_tipo_descripcion')
+
+
 # Imprimir las marcas corregidas
 print("Marcas de auto corregidas (automotor_marca_descripcion):")
 print(df_clean['automotor_marca_descripcion'].unique())
+print("\n")
+
+# Corrección tramite_tipo
+df_clean['tramite_tipo'] = df_clean['tramite_tipo'].replace({
+    'DENUNCIA DE ROBO O HURTO / RETENCION INDEBIDA': 'DENUNCIA DE ROBO O HURTO'
+})
+
+
+# Corrección registro_seccional_provincia
+df_clean['registro_seccional_provincia'] = df_clean['registro_seccional_provincia'].replace({
+    'Ciudad Autónoma de Bs.As.': 'Ciudad Autónoma de Buenos Aires'
+})
+
+
+# Corrección titular_domicilio_provincia
+df_clean['titular_domicilio_provincia'] = df_clean['titular_domicilio_provincia'].replace({
+    'C.AUTONOMA DE BS.AS': 'Ciudad Autónoma de Buenos Aires',
+    'T.DEL FUEGO': 'Tierra del Fuego',
+    'SGO.DEL ESTERO': 'Santiago del Estero',
+    'CÓRDOBA': 'CORDOBA',
+    'RÍO NEGRO': 'Río Negro',
+    'CIUDAD AUTÓNOMA DE BUENOS AIRES': 'Ciudad Autónoma de Buenos Aires'
+})
+
+
+def limpiar_texto(texto):
+    if isinstance(texto, str):
+        # Eliminar tildes
+        texto = unicodedata.normalize('NFKD', texto).encode('ASCII', 'ignore').decode('utf-8')
+        # Poner en mayúsculas
+        texto = texto.upper()
+    return texto
+
+# Aplicar a las columnas deseadas
+columnas_a_normalizar = [
+    'tramite_tipo',
+    'registro_seccional_provincia',
+    'titular_domicilio_provincia'
+]
+
+for col in columnas_a_normalizar:
+    df_clean[col] = df_clean[col].apply(limpiar_texto)
+
+
+for col in columnas_a_normalizar:
+    print(f"Valores únicos en {col}:")
+    print(df_clean[col].unique())
+    print("\n")
+
 
 
