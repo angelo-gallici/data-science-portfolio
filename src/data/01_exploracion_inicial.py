@@ -3,6 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import unicodedata
+from unidecode import unidecode
+import re
 
 # Leer el dataset
 df = pd.read_csv(r'F:\Portfolio Data Science\Robos vehiculos\data-science-portfolio\data\raw\Dataset Historico\dnrpa-robos-recuperos-autos-historico.csv', sep=',', 
@@ -1645,8 +1647,26 @@ print("Géneros de titulares (titular_genero):")
 print(df_clean['titular_genero'].unique())
 print("\n")
 
-# Crear una nueva columna automotor_modelo_simple con la primera palabra del modelo
-df_clean['automotor_modelo_simple'] = df_clean['automotor_modelo_descripcion'].str.split().str[0]
+# ============================================
+# 🔧 LIMPIEZA DE MODELOS: Eliminar marcas del modelo
+# ============================================
+
+# Lista de marcas en mayúsculas
+marcas = df_clean['automotor_marca_descripcion'].dropna().str.upper().unique().tolist()
+
+# Función para eliminar la marca solo si está al inicio
+def quitar_marca_si_es_primera(row):
+    modelo = str(row['automotor_modelo_descripcion'])
+    palabras = modelo.split()
+    if palabras and palabras[0].upper() in marcas:
+        palabras = palabras[1:]  # elimina solo la primera palabra si es una marca
+    return ' '.join(palabras)
+
+# Aplica la función y guarda el modelo sin la marca
+df_clean['modelo_sin_marca'] = df_clean.apply(quitar_marca_si_es_primera, axis=1)
+
+# Ahora toma la primera palabra del modelo limpio
+df_clean['automotor_modelo_simple'] = df_clean['modelo_sin_marca'].str.split().str[0]
 
 # Contar los modelos simplificados más comunes
 modelo_counts = df_clean['automotor_modelo_simple'].value_counts().head(20)  # Top 20
