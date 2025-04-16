@@ -1662,6 +1662,19 @@ plt.grid(axis='y', linestyle='--', alpha=0.7)
 plt.tight_layout()
 plt.show()
 
+# Contar los tipos de vehículos más comunes
+tipo_vehiculo_counts = df_clean['automotor_tipo_descripcion'].value_counts()  # Contamos los tipos de vehículos
+
+# Graficar
+plt.figure(figsize=(12, 6))
+tipo_vehiculo_counts.plot(kind='bar')
+plt.title('Frecuencia de Tipos de Vehículos')
+plt.xlabel('Tipo de Vehículo')
+plt.ylabel('Cantidad')
+plt.xticks(rotation=45, ha='right')
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
 
 
 
