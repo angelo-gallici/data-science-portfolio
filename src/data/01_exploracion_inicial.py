@@ -50,8 +50,8 @@ df = df.drop(columns=columnas_a_eliminar)
 df_clean = df.dropna()
 
 # Verificamos nuevamente los nulos
-print(df_clean.isnull().sum())
-print(f"Nuevo tamaño del dataset: {df_clean.shape}")
+#print(df_clean.isnull().sum())
+#print(f"Nuevo tamaño del dataset: {df_clean.shape}")
 
 # Guardamos el dataset limpio
 df_clean.to_csv(r'F:\Portfolio Data Science\Robos vehiculos\data-science-portfolio\data\processed\dnrpa-robos-limpio.csv', index=False)
@@ -76,68 +76,7 @@ df_clean['inscripcion_mes'] = df_clean['fecha_inscripcion_inicial'].dt.month
 # Verificar que la conversión fue bien
 #print(df_clean[['tramite_fecha', 'tramite_anio', 'tramite_mes' ,'fecha_inscripcion_inicial', 'inscripcion_anio', 'inscripcion_mes']].dtypes)
 
-# Crear una nueva columna automotor_modelo_simple con la primera palabra del modelo
-df_clean['automotor_modelo_simple'] = df_clean['automotor_modelo_descripcion'].str.split().str[0]
-
-# Verificamos que se creo bien
-#print(df_clean[['automotor_modelo_descripcion', 'automotor_modelo_simple']].head())
-
-# Contar los modelos simplificados más comunes
-#modelo_counts = df_clean['automotor_modelo_simple'].value_counts().head(20)  # Top 20
-"""
-# Graficar
-plt.figure(figsize=(12, 6))
-modelo_counts.plot(kind='bar')
-plt.title('Top 20 Modelos de Vehículos (simplificados)')
-plt.xlabel('Modelo simplificado')
-plt.ylabel('Cantidad')
-plt.xticks(rotation=45, ha='right')
-plt.grid(axis='y', linestyle='--', alpha=0.7)
-plt.tight_layout()
-plt.show()
-"""
-
-# Explorar valores únicos de las columnas solicitadas
-print("Tipos de trámite (tramite_tipo):")
-print(df_clean['tramite_tipo'].unique())
-print("\n")
-
-print("Provincias (registro_seccional_provincia):")
-print(df_clean['registro_seccional_provincia'].unique())
-print("\n")
-
-print("Provincias (titular_domicilio_provincia):")
-print(df_clean['titular_domicilio_provincia'].unique())
-print("\n")
-
-print("Marcas de auto (automotor_marca_descripcion):")
-print(df_clean['automotor_marca_descripcion'].unique())
-print("\n")
-
-# Mostrar todos los valores únicos completos de automotor_tipo_descripcion
-print(df_clean['automotor_tipo_descripcion'].value_counts().index.tolist())
-print("\n")
-
-print("Géneros de titulares (titular_genero):")
-print(df_clean['titular_genero'].unique())
-print("\n")
-
-print("CORRECCIONES")
-
-# Supongamos que tu DataFrame se llama df_clean
-# y la columna con las marcas es 'automotor_marca_descripcion'
-
 def corregir_marcas(df, columna):
-    """
-    Corrige errores de tipeo y unifica marcas en una columna de DataFrame.
-
-    Args:
-        df (pd.DataFrame): El DataFrame con la columna de marcas.
-        columna (str): El nombre de la columna con las marcas.
-
-    Returns:
-        pd.Series: La columna con las marcas corregidas.
-    """
 
     marcas = df[columna].str.upper().str.strip()  # Convertir a mayúsculas y eliminar espacios
 
@@ -323,16 +262,6 @@ def corregir_marcas(df, columna):
 df_clean['automotor_marca_descripcion'] = corregir_marcas(df_clean, 'automotor_marca_descripcion')
 
 def agrupar_tipo_vehiculo(df, columna):
-    """
-    Corrige errores de tipeo y unifica marcas en una columna de DataFrame.
-
-    Args:
-        df (pd.DataFrame): El DataFrame con la columna de marcas.
-        columna (str): El nombre de la columna con las marcas.
-
-    Returns:
-        pd.Series: La columna con las marcas corregidas.
-    """
 
     marcas = df[columna].str.upper().str.strip()  # Convertir a mayúsculas y eliminar espacios
 
@@ -1587,7 +1516,56 @@ def agrupar_tipo_vehiculo(df, columna):
         'SEDAN 5 PUERRTAS' : 'SEDAN',
         'FURGONVIDC/ASIENTOS' : 'FURGON',
         'FURGON VIDRIADO C/ASIENTO TR' : 'FURGON',
-        'PICK-UP CAB SIMPLE' : 'PICK-UP'
+        'PICK-UP CAB SIMPLE' : 'PICK-UP',
+        'FURGON  600' : 'FURGON',
+        'SEDAN 5  PUERTAS' : 'SEDAN',
+        'MOTORHOME' : 'MOTORHOME',
+        'GRUA' : 'GRUA',
+        'SEDAN  3 PUERTAS' : 'SEDAN',
+        'SEDAN  4 PUERTAS' : 'SEDAN',
+        'FURGON  VIDRIADO C/ASIENTOS'   : 'FURGON',
+        'BERLINA  5 PUERTAS' : 'SEDAN',
+        'FURGON  VIDRIADO' : 'FURGON',
+        'SEDAN 4  PUERTAS' : 'SEDAN',
+        'SEDAN 3  PUERTAS' : 'SEDAN',
+        'BERLINA  5 PTAS' : 'SEDAN',
+        'SEDAN  5 PUERTAS' : 'SEDAN',
+        'FURGON  C/ ASIENTOS' : 'FURGON',
+        'FURGON  3550' : 'FURGON',
+        'AUTOMOVIL COMBI II' : 'SEDAN',
+        'CHASIS C/CAB Y CAJ VOLCADORA' : 'CHASIS CON CABINA',
+        'AUTOMOVIL 5 PUERTAS' : 'SEDAN',
+        'BERLINA  4 PTAS' : 'SEDAN',
+        'FURGON  600 VIDRIADO CON A/' : 'FURGON',
+        'RURAL 4  PTAS' : 'RURAL',
+        'FURGON VIDRIADO  C/ASIENTOS' : 'FURGON',
+        'CHASIS C/CAB C/CAJA  ABIERTA' : 'CHASIS CON CABINA',
+        'TRANSPORTE  DE CARGA' : 'CAMION',
+        'CAMION C/CAJA VOLCAD' : 'CAMION',
+        'SEDAN  2 PUERTAS' : 'SEDAN',
+        'CAJA  MUDANCERA C/ LONA' : 'CHASIS CON CABINA',
+        'FURGONETA  CON ASIENTOS' : 'FURGON',
+        'COUPE 2 P. KF/R8' : 'COUPE',
+        'CAMION A CAJA ABIERTA' : 'CAMION',
+        'FURGON  800' : 'FURGON',
+        'SEDAN  3 PTAS' : 'SEDAN',
+        'SEDAN 2  PUERTAS' : 'SEDAN',
+        'CAMION  C/PLAT PORT VEHIC.' : 'CAMION',
+        'RURAL 4  PUERTAS' : 'RURAL',
+        'FURGON  C/EQUIPO DE FRIO' : 'FURGON',
+        'FURGON    800' : 'FURGON',
+        'TRACTOR  C/CABINA DORMITORIO' : 'TRACTOR',
+        'FURG VIDR CON ASIENT' : 'FURGON',
+        'FURGON  VIDR. C/ASIENTOS' : 'FURGON',
+        'FURGON  VIDRIADO  C/ASIENTOS' : 'FURGON',
+        'CAMION TISOF CC ISO C/EQ F' : 'CAMION',
+        'TREN' : 'TREN',
+        'SEDAN  4 PTAS' : 'SEDAN',
+        'CAJA  MUDANCERA' : 'CHASIS CON CABINA',
+        'CHASIS C/CAB P/CAMIO' : 'CHASIS CON CABINA',
+        'FURGON  VID C/ASIENTOS' : 'FURGON',
+        'FURGON MIXTO (5 PLAZAS)' : 'FURGON',
+        'BERLINA 4  PTAS' : 'SEDAN'
 
     }
 
@@ -1599,11 +1577,6 @@ def agrupar_tipo_vehiculo(df, columna):
 # Aplicar la función y actualizar la columna
 df_clean['automotor_tipo_descripcion'] = agrupar_tipo_vehiculo(df_clean, 'automotor_tipo_descripcion')
 
-
-# Imprimir las marcas corregidas
-print("Marcas de auto corregidas (automotor_marca_descripcion):")
-print(df_clean['automotor_marca_descripcion'].unique())
-print("\n")
 
 # Corrección tramite_tipo
 df_clean['tramite_tipo'] = df_clean['tramite_tipo'].replace({
@@ -1647,14 +1620,49 @@ for col in columnas_a_normalizar:
     df_clean[col] = df_clean[col].apply(limpiar_texto)
 
 
-for col in columnas_a_normalizar:
-    print(f"Valores únicos en {col}:")
-    print(df_clean[col].unique())
-    print("\n")
+# Explorar valores únicos de las columnas solicitadas
+print("Tipos de trámite (tramite_tipo):")
+print(df_clean['tramite_tipo'].unique())
+print("\n")
+
+print("Provincias (registro_seccional_provincia):")
+print(df_clean['registro_seccional_provincia'].unique())
+print("\n")
+
+print("Provincias (titular_domicilio_provincia):")
+print(df_clean['titular_domicilio_provincia'].unique())
+print("\n")
+
+print("Marcas de auto (automotor_marca_descripcion):")
+print(df_clean['automotor_marca_descripcion'].unique())
+print("\n")
 
 # Mostrar todos los valores únicos completos de automotor_tipo_descripcion
 print(df_clean['automotor_tipo_descripcion'].value_counts().index.tolist())
 print("\n")
+
+print("Géneros de titulares (titular_genero):")
+print(df_clean['titular_genero'].unique())
+print("\n")
+
+# Crear una nueva columna automotor_modelo_simple con la primera palabra del modelo
+df_clean['automotor_modelo_simple'] = df_clean['automotor_modelo_descripcion'].str.split().str[0]
+
+# Contar los modelos simplificados más comunes
+modelo_counts = df_clean['automotor_modelo_simple'].value_counts().head(20)  # Top 20
+
+# Graficar
+plt.figure(figsize=(12, 6))
+modelo_counts.plot(kind='bar')
+plt.title('Top 20 Modelos de Vehículos (simplificados)')
+plt.xlabel('Modelo simplificado')
+plt.ylabel('Cantidad')
+plt.xticks(rotation=45, ha='right')
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
+
+
 
 
 
