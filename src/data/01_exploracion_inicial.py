@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import unicodedata
 from unidecode import unidecode
-import re
+import seaborn as sns
+import geopandas as gpd
 
 # Leer el dataset
 df = pd.read_csv(r'F:\Portfolio Data Science\Robos vehiculos\data-science-portfolio\data\raw\Dataset Historico\dnrpa-robos-recuperos-autos-historico.csv', sep=',', 
@@ -1647,10 +1648,6 @@ print("Géneros de titulares (titular_genero):")
 print(df_clean['titular_genero'].unique())
 print("\n")
 
-# ============================================
-# 🔧 LIMPIEZA DE MODELOS: Eliminar marcas del modelo
-# ============================================
-
 # Lista de marcas en mayúsculas
 marcas = df_clean['automotor_marca_descripcion'].dropna().str.upper().unique().tolist()
 
@@ -1671,7 +1668,7 @@ df_clean['automotor_modelo_simple'] = df_clean['modelo_sin_marca'].str.split().s
 # Contar los modelos simplificados más comunes
 modelo_counts = df_clean['automotor_modelo_simple'].value_counts().head(20)  # Top 20
 
-# Graficar
+# Graficar los 20 modelos mas robados
 plt.figure(figsize=(12, 6))
 modelo_counts.plot(kind='bar')
 plt.title('Top 20 Modelos de Vehículos (simplificados)')
@@ -1685,7 +1682,7 @@ plt.show()
 # Contar los tipos de vehículos más comunes
 tipo_vehiculo_counts = df_clean['automotor_tipo_descripcion'].value_counts()  # Contamos los tipos de vehículos
 
-# Graficar
+# Graficar los tipos de vehiculos mas robados
 plt.figure(figsize=(12, 6))
 tipo_vehiculo_counts.plot(kind='bar')
 plt.title('Frecuencia de Tipos de Vehículos')
@@ -1693,6 +1690,32 @@ plt.xlabel('Tipo de Vehículo')
 plt.ylabel('Cantidad')
 plt.xticks(rotation=45, ha='right')
 plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
+
+#Graficar cantidad de robos por año
+plt.figure(figsize=(10, 6))
+sns.countplot(x='tramite_anio', data=df_clean, palette='viridis')
+plt.title('Cantidad de robos por año')
+plt.xlabel('Año')
+plt.ylabel('Cantidad de robos')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# Agrupamos por año y mes, y contamos cantidad de registros
+robos_mensuales = df_clean.groupby(['tramite_anio', 'tramite_mes']).size().reset_index(name='cantidad_robos')
+
+# Gráfico de líneas
+plt.figure(figsize=(12, 7))
+sns.lineplot(data=robos_mensuales, x='tramite_mes', y='cantidad_robos', hue='tramite_anio', palette='tab10', marker='o')
+
+plt.title('Cantidad de robos por mes, separados por año')
+plt.xlabel('Mes')
+plt.ylabel('Cantidad de robos')
+plt.xticks(ticks=range(1, 13), labels=['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 
+                                       'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'])
+plt.legend(title='Año', bbox_to_anchor=(1.05, 1), loc='upper left')
 plt.tight_layout()
 plt.show()
 
