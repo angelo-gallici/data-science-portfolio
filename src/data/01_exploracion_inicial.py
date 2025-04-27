@@ -1644,6 +1644,7 @@ print("\n")
 print(df_clean['automotor_tipo_descripcion'].value_counts().index.tolist())
 print("\n")
 
+
 print("Géneros de titulares (titular_genero):")
 print(df_clean['titular_genero'].unique())
 print("\n")
@@ -1718,6 +1719,12 @@ plt.xticks(ticks=range(1, 13), labels=['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
 plt.legend(title='Año', bbox_to_anchor=(1.05, 1), loc='upper left')
 plt.tight_layout()
 plt.show()
+
+#registro_seccional_descripcion valores únicos
+# Imprimir los valores únicos en líneas separadas
+for value in df_clean['registro_seccional_descripcion'].value_counts().index.tolist():
+    print(value)
+
 
 
 
