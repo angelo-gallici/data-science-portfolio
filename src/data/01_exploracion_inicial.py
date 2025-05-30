@@ -1725,6 +1725,129 @@ plt.show()
 for value in df_clean['registro_seccional_descripcion'].value_counts().index.tolist():
     print(value)
 
+# Cargar el archivo
+with open(r"F:\Portfolio Data Science\Robos vehiculos\data-science-portfolio\data\raw\Seccionales\direccion_seccionales.txt", "r", encoding="utf-8") as f:
+    lineas = f.readlines()
+
+# Limpiar y separar datos
+registros = []
+for linea in lineas:
+    linea = linea.strip()
+    if not linea:
+        continue
+    try:
+        seccional, resto = linea.split(":", 1)
+        direccion_partes = resto.split(",")
+        direccion = direccion_partes[0].strip()
+        localidad = direccion_partes[1].strip()
+        cp = direccion_partes[2].strip() if len(direccion_partes) > 2 else None
+        registros.append({
+            "seccional": seccional,
+            "direccion": direccion,
+            "localidad": localidad,
+            "codigo_postal": cp
+        })
+    except:
+        print("Línea con error:", linea)
+
+# Convertir a DataFrame
+df_seccionales = pd.DataFrame(registros)
+
+from geopy.geocoders import Nominatim
+from geopy.extra.rate_limiter import RateLimiter
+import re
+
+# Inicializar geolocalizador con timeout aumentado
+geolocator = Nominatim(user_agent="robos-app", timeout=5)
+geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1)
+"""
+def limpiar_direccion(direccion):
+    # Reemplazar 'NRO:' y similares por espacios
+    direccion = re.sub(r'\bNRO[:.]?\b', '', direccion, flags=re.IGNORECASE)
+    direccion = re.sub(r'\bPISO[:.]?\d+\b', '', direccion, flags=re.IGNORECASE)
+    direccion = re.sub(r'PISO[:.]?\s*\d+', '', direccion, flags=re.IGNORECASE)
+    direccion = re.sub(r'\s{2,}', ' ', direccion)  # Eliminar espacios extra
+    return direccion.strip()
+"""
+def limpiar_direccion(direccion):
+    if not isinstance(direccion, str):
+        return ''
+
+    direccion = direccion.upper()  # Uniformar en mayúsculas para los regex
+
+        # Expansión de abreviaturas
+    abreviaturas = {
+        r'\bAV[.]?\b': 'AVENIDA',
+        r'\bGRAL[.]?\b': 'GENERAL',
+        r'\bPTE[.]?\b': 'PRESIDENTE',
+        r'\bMZ[.]?\b': 'MANZANA',
+        r'\bDTO[.]?\b': 'DEPARTAMENTO',
+        r'\bOF[.]?\b': 'OFICINA',
+        r'\bMÑOR[.]?\b': 'MONSEÑOR',
+        r'\bS/N\b': 'SIN NUMERO'
+    }
+
+    for abrev, completo in abreviaturas.items():
+        direccion = re.sub(abrev, completo, direccion)
+
+    # Eliminar "NRO:", "NRO." (número de puerta)
+    direccion = re.sub(r'\bNRO[:.]?\s*', '', direccion)
+    # Eliminar "PISO: 1", "PISO 2", etc.
+    direccion = re.sub(r'\bPISO[:.]?\s*\d+\b', '', direccion)
+    # Eliminar "DTO/OF:", "DTO:", "OF:", etc.
+    direccion = re.sub(r'\b(DTO|OF|DTO/OF)[:.]?\s*\w+\b', '', direccion)
+    # Eliminar expresiones como "E/CALLE", "E/AVENIDA", etc.
+    direccion = re.sub(r'\bE/\s*\w+(\s*\w+)*', '', direccion)
+    # Eliminar expresiones tipo "ENTRE CALLE1 Y CALLE2"
+    direccion = re.sub(r'\bENTRE\s+\w+(\s*\w+)*\s+Y\s+\w+(\s*\w+)*', '', direccion)
+    # Eliminar cosas como "Y123", "Y 123"
+    direccion = re.sub(r'\bY\s*\d+\b', '', direccion)
+
+    # Limpiar múltiples espacios y comas redundantes
+    direccion = re.sub(r'\s{2,}', ' ', direccion)  # espacios duplicados
+    direccion = re.sub(r'\s+,', ',', direccion)    # espacio antes de coma
+    direccion = re.sub(r',\s+', ',', direccion)    # coma seguida de espacio
+
+    return direccion.strip()
+
+# Aplicar limpieza
+df_seccionales["direccion_limpia"] = df_seccionales["direccion"].apply(limpiar_direccion)
+
+# Crear nueva dirección completa con limpieza
+df_seccionales["direccion_completa_limpia"] = (
+    df_seccionales["direccion_limpia"] + ", " +
+    df_seccionales["localidad"] + ", Argentina"
+)
+
+# Función segura para geocodificar con manejo de errores
+def geocodificar_direccion(direccion):
+    try:
+        return geocode(direccion)
+    except Exception as e:
+        print(f"Error al geocodificar '{direccion}': {e}")
+        return None
+
+# Aplicar función fila por fila
+df_seccionales["location"] = df_seccionales["direccion_completa_limpia"].apply(geocodificar_direccion)
+df_seccionales["lat"] = df_seccionales["location"].apply(lambda loc: loc.latitude if loc else None)
+df_seccionales["lon"] = df_seccionales["location"].apply(lambda loc: loc.longitude if loc else None)
+
+
+# Ver algunas filas para ver si hay latitud y longitud
+print(df_seccionales[['direccion_completa_limpia', 'lat', 'lon']].head(10))
+
+# Ver cuántas filas tienen coordenadas válidas
+print("Filas con coordenadas válidas:", df_seccionales[['lat', 'lon']].notnull().all(axis=1).sum())
+
+# Ver cuántas filas no pudieron ser geocodificadas
+print("Filas con errores (sin coordenadas):", df_seccionales[['lat', 'lon']].isnull().any(axis=1).sum())
+
+
+df_seccionales.to_csv(r'F:\Portfolio Data Science\Robos vehiculos\data-science-portfolio\data\processed\seccionales_geolocalizadas.csv', index=False)
+
+
+
+
 
 
 
