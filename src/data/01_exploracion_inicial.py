@@ -1845,6 +1845,28 @@ print("Filas con errores (sin coordenadas):", df_seccionales[['lat', 'lon']].isn
 
 df_seccionales.to_csv(r'F:\Portfolio Data Science\Robos vehiculos\data-science-portfolio\data\processed\seccionales_geolocalizadas.csv', index=False)
 
+# Uniformar claves para el merge
+df_clean['seccional_normalizada'] = df_clean['registro_seccional_descripcion'].str.strip().str.upper()
+df_seccionales['seccional_normalizada'] = df_seccionales['seccional'].str.strip().str.upper()
+
+df_clean = df_clean.merge(
+    df_seccionales[['seccional_normalizada', 'lat', 'lon']],
+    on='seccional_normalizada',
+    how='left'
+)
+
+df_clean['coordenadas'] = df_clean.apply(
+    lambda row: (row['lat'], row['lon']) if pd.notnull(row['lat']) and pd.notnull(row['lon']) else None,
+    axis=1
+)
+
+total_con_coordenadas = df_clean['coordenadas'].notnull().sum()
+total_sin_coordenadas = df_clean['coordenadas'].isnull().sum()
+
+print("Filas con coordenadas:", total_con_coordenadas)
+print("Filas sin coordenadas:", total_sin_coordenadas)
+
+df_clean.to_csv(r'F:\Portfolio Data Science\Robos vehiculos\data-science-portfolio\data\processed\df_clean_con_coordenadas.csv', index=False)
 
 
 
