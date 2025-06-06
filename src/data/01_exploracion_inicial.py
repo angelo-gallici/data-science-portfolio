@@ -1726,7 +1726,7 @@ for value in df_clean['registro_seccional_descripcion'].value_counts().index.tol
     print(value)
 
 # Cargar el archivo
-with open(r"F:\Portfolio Data Science\Robos vehiculos\data-science-portfolio\data\raw\Seccionales\direccion_seccionales.txt", "r", encoding="utf-8") as f:
+with open(r"F:\Portfolio Data Science\Robos vehiculos\data-science-portfolio\data\raw\Seccionales\direccion_seccionales_limpias.txt", "r", encoding="utf-8") as f:
     lineas = f.readlines()
 
 # Limpiar y separar datos
@@ -1745,7 +1745,6 @@ for linea in lineas:
             "seccional": seccional,
             "direccion": direccion,
             "localidad": localidad,
-            "codigo_postal": cp
         })
     except:
         print("Línea con error:", linea)
@@ -1760,48 +1759,12 @@ import re
 # Inicializar geolocalizador con timeout aumentado
 geolocator = Nominatim(user_agent="robos-app", timeout=5)
 geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1)
-"""
-def limpiar_direccion(direccion):
-    # Reemplazar 'NRO:' y similares por espacios
-    direccion = re.sub(r'\bNRO[:.]?\b', '', direccion, flags=re.IGNORECASE)
-    direccion = re.sub(r'\bPISO[:.]?\d+\b', '', direccion, flags=re.IGNORECASE)
-    direccion = re.sub(r'PISO[:.]?\s*\d+', '', direccion, flags=re.IGNORECASE)
-    direccion = re.sub(r'\s{2,}', ' ', direccion)  # Eliminar espacios extra
-    return direccion.strip()
-"""
+
 def limpiar_direccion(direccion):
     if not isinstance(direccion, str):
         return ''
 
     direccion = direccion.upper()  # Uniformar en mayúsculas para los regex
-
-        # Expansión de abreviaturas
-    abreviaturas = {
-        r'\bAV[.]?\b': 'AVENIDA',
-        r'\bGRAL[.]?\b': 'GENERAL',
-        r'\bPTE[.]?\b': 'PRESIDENTE',
-        r'\bMZ[.]?\b': 'MANZANA',
-        r'\bDTO[.]?\b': 'DEPARTAMENTO',
-        r'\bOF[.]?\b': 'OFICINA',
-        r'\bMÑOR[.]?\b': 'MONSEÑOR',
-        r'\bS/N\b': 'SIN NUMERO'
-    }
-
-    for abrev, completo in abreviaturas.items():
-        direccion = re.sub(abrev, completo, direccion)
-
-    # Eliminar "NRO:", "NRO." (número de puerta)
-    direccion = re.sub(r'\bNRO[:.]?\s*', '', direccion)
-    # Eliminar "PISO: 1", "PISO 2", etc.
-    direccion = re.sub(r'\bPISO[:.]?\s*\d+\b', '', direccion)
-    # Eliminar "DTO/OF:", "DTO:", "OF:", etc.
-    direccion = re.sub(r'\b(DTO|OF|DTO/OF)[:.]?\s*\w+\b', '', direccion)
-    # Eliminar expresiones como "E/CALLE", "E/AVENIDA", etc.
-    direccion = re.sub(r'\bE/\s*\w+(\s*\w+)*', '', direccion)
-    # Eliminar expresiones tipo "ENTRE CALLE1 Y CALLE2"
-    direccion = re.sub(r'\bENTRE\s+\w+(\s*\w+)*\s+Y\s+\w+(\s*\w+)*', '', direccion)
-    # Eliminar cosas como "Y123", "Y 123"
-    direccion = re.sub(r'\bY\s*\d+\b', '', direccion)
 
     # Limpiar múltiples espacios y comas redundantes
     direccion = re.sub(r'\s{2,}', ' ', direccion)  # espacios duplicados
