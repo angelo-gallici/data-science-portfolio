@@ -1720,6 +1720,8 @@ plt.legend(title='Año', bbox_to_anchor=(1.05, 1), loc='upper left')
 plt.tight_layout()
 plt.show()
 
+#ESTA SECCION DE CODIGO DEBAJO SE UTILIZO PARA OBTENER COORDENADAS DE LAS SECCIONALES
+"""
 #registro_seccional_descripcion valores únicos
 # Imprimir los valores únicos en líneas separadas
 for value in df_clean['registro_seccional_descripcion'].value_counts().index.tolist():
@@ -1830,6 +1832,82 @@ print("Filas con coordenadas:", total_con_coordenadas)
 print("Filas sin coordenadas:", total_sin_coordenadas)
 
 df_clean.to_csv(r'F:\Portfolio Data Science\Robos vehiculos\data-science-portfolio\data\processed\df_clean_con_coordenadas.csv', index=False)
+"""
+
+#Leer dataset con coordenadas
+df_clean_coord = pd.read_csv(r'F:\Portfolio Data Science\Robos vehiculos\data-science-portfolio\data\processed\df_clean_con_coordenadas.csv',
+    dtype={"titular_genero": str},low_memory=False)
+
+
+gdf_departamentos = gpd.read_file(r"F:\Portfolio Data Science\Robos vehiculos\data-science-portfolio\data\raw\departamentos.geojson")
+gdf_provincias = gpd.read_file(r"F:\Portfolio Data Science\Robos vehiculos\data-science-portfolio\data\raw\provincias.geojson")
+
+df_clean_coord = df_clean_coord.dropna(subset=['lat', 'lon'])
+
+import folium
+from folium.plugins import MarkerCluster
+
+
+
+# Simplificar geometrías para mejorar rendimiento (ajustá tolerance si querés)
+gdf_provincias['geometry'] = gdf_provincias['geometry'].simplify(tolerance=0.01, preserve_topology=True)
+gdf_departamentos['geometry'] = gdf_departamentos['geometry'].simplify(tolerance=0.005, preserve_topology=True)
+
+# Crear mapa base centrado en Argentina
+m = folium.Map(location=[-34.6, -58.4], zoom_start=5, tiles='cartodbpositron')
+
+# Agregar provincias con polígono grueso y colores suaves + tooltip
+folium.GeoJson(
+    gdf_provincias,
+    name='Provincias',
+    style_function=lambda feature: {
+        'fillColor': '#b3cde3',
+        'color': '#03396c',
+        'weight': 3,
+        'fillOpacity': 0.2,
+    },
+    tooltip=folium.GeoJsonTooltip(fields=['nam'], aliases=['Provincia:'])
+).add_to(m)
+
+# Agregar departamentos con polígono más fino y tooltip con nombre
+folium.GeoJson(
+    gdf_departamentos,
+    name='Departamentos',
+    style_function=lambda feature: {
+        'fillColor': '#f7f7f7',
+        'color': '#6497b1',
+        'weight': 1,
+        'fillOpacity': 0,
+    },
+    tooltip=folium.GeoJsonTooltip(fields=['nam'], aliases=['Departamento:'])
+).add_to(m)
+
+# Clustering para puntos (usá tu df_clean_coord)
+marker_cluster = MarkerCluster(name='Robos Vehículos').add_to(m)
+
+for idx, row in df_clean_coord.iterrows():
+    if pd.notnull(row['lat']) and pd.notnull(row['lon']):
+        folium.CircleMarker(
+            location=[row['lat'], row['lon']],
+            radius=3,
+            color='red',
+            fill=True,
+            fill_color='red',
+            fill_opacity=0.7,
+            popup=f"ID: {idx}"
+        ).add_to(marker_cluster)
+
+# Control de capas para activar/desactivar provincias, departamentos y puntos
+folium.LayerControl().add_to(m)
+
+# Guardar mapa
+m.save("mapa_argentina_provincias_departamentos_cluster.html")
+
+
+
+
+
+
 
 
 
