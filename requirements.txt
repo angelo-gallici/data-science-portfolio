@@ -1,0 +1,7 @@
+streamlit==1.45.1
+pandas==2.2.3
+geopandas==1.0.1
+matplotlib==3.10.1
+seaborn==0.13.2
+folium==0.19.7
+numpy==2.2.4

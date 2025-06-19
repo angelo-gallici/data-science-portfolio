@@ -1554,3 +1554,24 @@ def limpiar_modelos(df):
     df['modelo_sin_marca'] = df.apply(quitar_marca_si_es_primera, axis=1)
     df['automotor_modelo_simple'] = df['modelo_sin_marca'].str.split().str[0]
     return df
+
+def limpiar_datos(df):
+    df = drop_unnecessary_columns(df)
+    df = drop_na(df)
+    df = convert_dates(df)
+    df = corregir_marcas(df, 'automotor_marca_descripcion')
+    df = corregir_otros(df)
+    df['automotor_tipo_descripcion'] = agrupar_tipo_vehiculo(df, 'automotor_tipo_descripcion')
+    df = normalizar_columnas(df, [
+        'registro_seccional_descripcion',
+        'automotor_tipo_descripcion',
+        'automotor_marca_descripcion',
+        'automotor_modelo_descripcion',
+        'titular_domicilio_localidad',
+        'titular_domicilio_provincia',
+        'titular_genero',
+        'titular_pais_nacimiento',
+        'tramite_tipo'
+    ])
+    df = limpiar_modelos(df)
+    return df

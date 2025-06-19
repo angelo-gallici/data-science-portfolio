@@ -23,3 +23,7 @@ def check_data_types(df):
             except ValueError:
                 continue
 
+def validar_datos(df):
+    check_nulls_all_columns(df)
+    check_data_types(df)
+

@@ -1,11 +1,17 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pandas as pd
 
 def plot_edad_titulares(df):
-    # Calcular edad
     df = df.copy()
+    # Convertir 'titular_anio_nacimiento' a numérico, forzando NaN en errores
+    df['titular_anio_nacimiento'] = pd.to_numeric(df['titular_anio_nacimiento'], errors='coerce')
+
+    # Calcular edad
     df['edad'] = df['tramite_anio'] - df['titular_anio_nacimiento']
-    df = df[(df['edad'] > 0) & (df['edad'] < 100)]  # Filtrar valores razonables
+
+    # Filtrar edades razonables
+    df = df[(df['edad'] > 0) & (df['edad'] < 100)]
 
     plt.figure(figsize=(10, 6))
     sns.histplot(df['edad'], bins=30, kde=True, color='skyblue')
