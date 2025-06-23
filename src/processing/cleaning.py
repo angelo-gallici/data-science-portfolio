@@ -1526,10 +1526,10 @@ def agrupar_tipo_vehiculo(df, columna):
         'FURGON  VID C/ASIENTOS' : 'FURGON',
         'FURGON MIXTO (5 PLAZAS)' : 'FURGON',
         'BERLINA 4  PTAS' : 'SEDAN'
-
     }
 
     tipo_vehiculo_corregidos = marcas.replace(correcciones)
+    tipo_vehiculo_corregidos = tipo_vehiculo_corregidos.replace('SEDAN', 'CUATRO PUERTAS')
     return tipo_vehiculo_corregidos
 
 def normalizar_texto(texto):

@@ -11,8 +11,8 @@ def check_nulls_all_columns(df):
 
 def check_data_types(df):
 
-    print("\nTipos de datos por columna:")
-    print(df.dtypes)
+    #print("\nTipos de datos por columna:")
+    #print(df.dtypes)
 
     print("\nChequeando columnas no numéricas que podrían ser numéricas")
     for col in df.columns:
