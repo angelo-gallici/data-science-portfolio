@@ -3,7 +3,7 @@
 Este proyecto analiza los robos de vehículos registrados por la DNRPA en Argentina. Se utiliza Python, Streamlit y visualizaciones interactivas para detectar patrones temporales, geográficos y de tipo de vehículo.
 
 ## Estructura del proyecto
-
+```
 data-science-portfolio/
 ├── app/
 │   └── dashboard.py               # App principal de Streamlit
@@ -38,7 +38,7 @@ data-science-portfolio/
 ├── .gitignore                     # Archivos a excluir del repositorio
 ├── .gitattributes                 # Config Git opcional (normalización EOL)
 └── LICENCE                        # Tipo de licencia 
-
+```
 
 ## Tecnologías utilizadas
 
@@ -93,3 +93,4 @@ streamlit run app/dashboard.py
 ## Licencia
 
 Este proyecto está bajo la licencia MIT.
+
